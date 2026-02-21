@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Command-line interface for merging PDF files."""
 
 from __future__ import annotations
