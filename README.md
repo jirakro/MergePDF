@@ -17,6 +17,12 @@ pip install -e .
 mergepdf input1.pdf input2.pdf input3.pdf --output merged.pdf
 ```
 
+You can also use wildcard patterns (quote them so the app can expand `*`):
+
+```bash
+mergepdf "./invoices/*.pdf" --output merged.pdf
+```
+
 You can also run it directly as a module:
 
 ```bash

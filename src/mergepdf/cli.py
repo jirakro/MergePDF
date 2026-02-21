@@ -4,9 +4,27 @@
 from __future__ import annotations
 
 import argparse
+from glob import glob
 from pathlib import Path
 
 from PyPDF2 import PdfMerger
+
+
+def resolve_input_files(input_patterns: list[str]) -> list[Path]:
+    """Resolve input values into PDF paths, expanding wildcard patterns."""
+    resolved_paths: list[Path] = []
+
+    for pattern in input_patterns:
+        matches = sorted(Path(match) for match in glob(pattern))
+        if matches:
+            resolved_paths.extend(path for path in matches if path.is_file())
+        else:
+            resolved_paths.append(Path(pattern))
+
+    if not resolved_paths:
+        raise FileNotFoundError("No input PDF files were resolved from the provided patterns.")
+
+    return resolved_paths
 
 
 def merge_pdfs(input_files: list[Path], output_file: Path) -> None:
@@ -34,8 +52,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "input_files",
         nargs="+",
-        type=Path,
-        help="Paths to the input PDF files in merge order.",
+        type=str,
+        help="Input PDF paths or wildcard patterns (for example: '*.pdf').",
     )
     parser.add_argument(
         "-o",
@@ -49,8 +67,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    merge_pdfs(args.input_files, args.output)
-    print(f"Merged {len(args.input_files)} file(s) into {args.output}")
+    input_files = resolve_input_files(args.input_files)
+    merge_pdfs(input_files, args.output)
+    print(f"Merged {len(input_files)} file(s) into {args.output}")
 
 
 if __name__ == "__main__":
